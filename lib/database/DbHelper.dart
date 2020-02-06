@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:sqflite/sqflite.dart';
 
+import '../Constants.dart';
 import 'DBManager.dart';
 import 'classify.dart';
 
 class DBHelper {
-
   static Future<List<Classify>> classifies() async {
     final Database db = await DBManager().database;
 
@@ -39,14 +39,37 @@ class DBHelper {
   }
 
 
-  static Future<void> insertRecord(Record record) async {
+  static Future<int> insertRecord(Record record) async {
     final Database db = await DBManager().database;
 
-    await db.insert(
+    return db.insert(
       'record',
       record.toMap(),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
   }
 
+  static Future<List<Record>> records(int year, int month) async {
+    final Database db = await DBManager().database;
+
+    DateTime start = new DateTime(year, month, 1);
+    DateTime end = new DateTime(year, month + 1, 1);
+
+    String where = "time between ${start.millisecondsSinceEpoch} and ${end.millisecondsSinceEpoch}";
+
+    final List<Map<String, dynamic>> maps = await db.query('record',
+        orderBy: "time desc", where: where);
+
+    return List.generate(maps.length, (i) {
+      return Record(
+          id: maps[i]['id'],
+          amount: maps[i]['amount'],
+          type: maps[i]['type'],
+          classify: maps[i]['classify'],
+          time: maps[i]['time'],
+          account: maps[i]['account'],
+          remark: maps[i]['remark']
+      );
+    });
+  }
 }

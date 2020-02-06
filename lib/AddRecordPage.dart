@@ -97,7 +97,9 @@ class AddRecordPage extends StatelessWidget {
       time: _recordStatus.date.millisecondsSinceEpoch,
       account: 0, //_recordStatus.account,
     );
-    DBHelper.insertRecord(record).whenComplete((){
+    DBHelper.insertRecord(record).then((id) {
+      print(id);
+    }).whenComplete((){
       saving = false;
       Navigator.of(context).pop(null);
     });
@@ -144,7 +146,7 @@ class _AddRecord extends State<AddRecord> {
         children: <Widget>[
           Expanded(
             flex: 2,
-            child: Image.asset('images/classify_${widget.image}.png', width: 40, height: 40,),
+            child: Image.asset(Utils.getClassifyImage(widget.image), width: 40, height: 40,),
           ),
           Expanded(
             flex: 2,

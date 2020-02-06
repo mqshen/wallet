@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 
 class Constants {
+  static final int pageSize = 20;
 
   static const colors = [0x85619F, 0xA392E5, 0x677ECF, 0x739CE8, 0x6E9BDB,
     0x6CB1E7, 0x77BAB3, 0x77B982, 0xE5BC63, 0xE5BC63, 0xDE9364, 0xD17067,
@@ -38,15 +39,18 @@ class Utils {
     String currency = temp.replaceAll("\.", "");
     return int.parse(currency);
   }
+
   static String stringToCurrency(String amount) {
     int currency = stringToInt(amount);
     return toCurrency(currency);
   }
 
-
-
   static String formatDate(DateTime time) {
     var formatter = new DateFormat('yyyy-MM-dd');
     return formatter.format(time);
+  }
+
+  static String getClassifyImage(String image) {
+    return 'images/classify_${image}.png';
   }
 }

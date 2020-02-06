@@ -40,9 +40,11 @@ class TimeLineIcon extends CustomPainter {
 
       canvas.drawPath(_path, _paint);
     }
-
-    _paint.style = PaintingStyle.fill;
-    canvas.drawCircle(Offset(size.width / 2, size.height / 2), circleSize, _paint);
+    if(circleSize > 0) {
+      _paint.style = PaintingStyle.fill;
+      canvas.drawCircle(
+          Offset(size.width / 2, size.height / 2), circleSize, _paint);
+    }
   }
 
   @override
