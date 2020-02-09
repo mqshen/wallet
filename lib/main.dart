@@ -1,35 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'AddRecordPage.dart';
 import 'Assets.dart';
+import 'Constants.dart';
 import 'MyIcons.dart';
-import 'bill.dart';
+import 'Bill.dart';
+import 'package:wallet/statistical/Statistical.dart';
 import 'database/DBManager.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(MyApp());
+  SystemUiOverlayStyle systemUiOverlayStyle = SystemUiOverlayStyle (
+    statusBarColor: Colors.transparent,
+  );
+  SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
+}
+
 
 class MyApp extends StatelessWidget {
   static const String _title = 'MyWallet';
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    DBManager();
     return MaterialApp(
       title: _title,
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
+        primaryColor: Colors.white,
       ),
-      home: MyWalletPage(),
+      home: LoadingPage(),
     );
   }
+}
+
+
+class LoadingPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    DBManager().completer.future.whenComplete((){
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => MyWalletPage()),
+      );
+    });
+    return new Container(
+      color: Colors.cyan,
+    );
+  }
+
 }
 
 class MyWalletPage extends StatefulWidget {
@@ -52,10 +70,16 @@ class _MyWalletPageState extends State<MyWalletPage> {
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
-    if(index == 2) return;
-    setState(() {
-      _selectedIndex = index;
-    });
+    if(index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => AddRecordPage()),
+      );
+      return;
+    }
+      setState(() {
+        _selectedIndex = index;
+      });
   }
 
   @override
@@ -77,7 +101,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
             title: Text('报表'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(MyIcons.add, color: Colors.white,),
+            icon: Icon(MyIcons.add, color: Colors.white, ),
             title: Text(''),
           ),BottomNavigationBarItem(
             icon: Icon(MyIcons.card),
@@ -93,26 +117,26 @@ class _MyWalletPageState extends State<MyWalletPage> {
         onTap: _onItemTapped,
       ),
       floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.add),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AddRecordPage()),
-          );
-        },
+            child: const Icon(Icons.add),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => AddRecordPage()),
+            );
+          },
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation: MyCenterButtonLocation(),//FloatingActionButtonLocation.centerDocked,
     );
   }
 
   Widget _getBody(int index) {
     switch (index) {
       case 0:
-        return Bill(); // Create this function, it should return your first page as a widget
+        return Bill();
+      case 1:
+        return Statistical();
       case 3:
-        return Assets(); // Create this function, it should return your second page as a widget
-//      case 2:
-//        return _buildThirdPage(); // Create this function, it should return your third page as a widget
+        return Assets();
 //      case 3:
 //        return _buildFourthPage(); // Create this function, it should return your fourth page as a widget
     }

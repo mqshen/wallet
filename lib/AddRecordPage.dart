@@ -114,8 +114,6 @@ class AddRecord extends StatefulWidget {
   String amount;
   final State<StatefulWidget> state = _AddRecord();
 
-  static _AddRecord of(BuildContext context) => context.findAncestorStateOfType<_AddRecord>();
-
   AddRecord({
     Key key,
     this.image,

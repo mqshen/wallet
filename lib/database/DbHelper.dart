@@ -15,6 +15,7 @@ class DBHelper {
     return List.generate(maps.length, (i) {
       return Classify(
           id: maps[i]['id'],
+          color: maps[i]['color'],
           image: maps[i]['image'],
           name: maps[i]['name']
       );
@@ -54,6 +55,30 @@ class DBHelper {
 
     DateTime start = new DateTime(year, month, 1);
     DateTime end = new DateTime(year, month + 1, 1);
+
+    String where = "time between ${start.millisecondsSinceEpoch} and ${end.millisecondsSinceEpoch}";
+
+    final List<Map<String, dynamic>> maps = await db.query('record',
+        orderBy: "time desc", where: where);
+
+    return List.generate(maps.length, (i) {
+      return Record(
+          id: maps[i]['id'],
+          amount: maps[i]['amount'],
+          type: maps[i]['type'],
+          classify: maps[i]['classify'],
+          time: maps[i]['time'],
+          account: maps[i]['account'],
+          remark: maps[i]['remark']
+      );
+    });
+  }
+
+  static Future<List<Record>> findRecordsByYear(int year) async {
+    final Database db = await DBManager().database;
+
+    DateTime start = new DateTime(year, 1, 1);
+    DateTime end = new DateTime(year + 1, 1, 1);
 
     String where = "time between ${start.millisecondsSinceEpoch} and ${end.millisecondsSinceEpoch}";
 

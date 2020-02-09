@@ -1,4 +1,8 @@
+import 'package:flutter/material.dart';
+import 'dart:math' as math;
 import 'package:intl/intl.dart';
+
+import 'package:charts_flutter/flutter.dart' as charts;
 
 class Constants {
   static final int pageSize = 20;
@@ -17,9 +21,14 @@ class Utils {
 
   static final currencyFormat = new NumberFormat("#,##0", "en_US");
   static final placeholderFormat = new NumberFormat("00", "en_US");
+  static final percentFormat = new NumberFormat("0.00", "en_US");
 
   static String toCurrency(int amount) {
     return '${currencyFormat.format((amount / 100).floor())}.${placeholderFormat.format(amount % 100)}';
+  }
+
+  static String toPercent(double percent) {
+    return '${percentFormat.format(percent * 100)}%';
   }
 
   static int stringToInt(String amount) {
@@ -50,7 +59,51 @@ class Utils {
     return formatter.format(time);
   }
 
+  static String formatMonth(DateTime time) {
+    var formatter = new DateFormat('yyyy-MM');
+    return formatter.format(time);
+  }
+
   static String getClassifyImage(String image) {
     return 'images/classify_${image}.png';
   }
+   static charts.Color toChartColor(int color) {
+     int r = (color & 0xFF0000) >> 16;
+     int g = (color & 0xFF00) >> 8;
+     int b = (color & 0xFF);
+     return charts.Color(r: r, g: g, b: b);
+   }
+}
+
+
+class MyCenterButtonLocation extends FloatingActionButtonLocation {
+  const MyCenterButtonLocation();
+
+  // Positions the Y coordinate of the [FloatingActionButton] at a height
+  // where it docks to the [BottomAppBar].
+  double getDockedY(ScaffoldPrelayoutGeometry scaffoldGeometry) {
+    final double contentBottom = scaffoldGeometry.contentBottom;
+    final double bottomSheetHeight = scaffoldGeometry.bottomSheetSize.height;
+    final double fabHeight = scaffoldGeometry.floatingActionButtonSize.height;
+    final double snackBarHeight = scaffoldGeometry.snackBarSize.height;
+
+    double fabY = contentBottom;
+    // The FAB should sit with a margin between it and the snack bar.
+    if (snackBarHeight > 0.0)
+      fabY = math.min(fabY, contentBottom - snackBarHeight - fabHeight - kFloatingActionButtonMargin);
+    // The FAB should sit with its center in front of the top of the bottom sheet.
+    if (bottomSheetHeight > 0.0)
+      fabY = math.min(fabY, contentBottom - bottomSheetHeight - fabHeight);
+
+    final double maxFabY = scaffoldGeometry.scaffoldSize.height - fabHeight;
+    return math.min(maxFabY, fabY) - 10;
+  }
+
+  @override
+  Offset getOffset(ScaffoldPrelayoutGeometry scaffoldGeometry) {
+    final double fabX = (scaffoldGeometry.scaffoldSize.width - scaffoldGeometry.floatingActionButtonSize.width) / 2.0;
+    return Offset(fabX, getDockedY(scaffoldGeometry));
+  }
+
+
 }

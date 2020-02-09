@@ -3,10 +3,11 @@ class Classify {
   static const double iconSize = 30;
 
   final int id;
+  final int color;
   final String image;
   final String name;
 
-  Classify({this.id, this.image, this.name});
+  Classify({this.id, this.color, this.image, this.name});
 
 }
 
@@ -40,6 +41,10 @@ class Record {
     this.time,
     this.account,
     this.remark = ""});
+
+  DateTime getOpTime() {
+    return DateTime.fromMillisecondsSinceEpoch(time);
+  }
 
   Map<String, dynamic> toMap() {
     return {

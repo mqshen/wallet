@@ -24,6 +24,7 @@ dependencies:
   sqflite:
   path:
   intl:
+  charts_flutter:
 
   infinite_listview: ^1.0.1+1
 
