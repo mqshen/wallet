@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:wallet/widget/AssetPicker.dart';
 
 import 'ButtonGroup.dart';
 import 'Constants.dart';
@@ -21,7 +23,7 @@ class AddRecordPage extends StatelessWidget {
   );
 
   AddRecord _addRecord = AddRecord(image: "eat", name: "餐饮", amount: "0.0");
-  RecordStatus _recordStatus = RecordStatus(date: DateTime.now(), account: '现金',);
+  RecordStatus _recordStatus = RecordStatus(date: DateTime.now(), account: 0,);
 
   @override
   Widget build(BuildContext context) {
@@ -214,12 +216,13 @@ class ClassifyWidget extends StatelessWidget {
 
 class RecordStatus extends StatefulWidget {
   DateTime date;
-  String account;
+  int account;
 
 
   RecordStatus({ Key key,
     this.date,
-    this.account}):super(key: key);
+    this.account
+  }):super(key: key);
 
   @override
   State<StatefulWidget> createState() => _RecordStatus();
@@ -283,8 +286,19 @@ class _RecordStatus extends State<RecordStatus> {
                     side: BorderSide(color: Colors.blue)
                 ),
                 onPressed: () {
+                  showCupertinoModalPopup(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AssetPicker(selected: widget.account, onTap: (index) {
+                        Navigator.of(context, rootNavigator: true).pop();
+                        setState(() {
+                          widget.account = index;
+                        });
+                      },);
+                    },
+                  );
                 },
-                child: Text(widget.account, style: TextStyle(fontSize: 12.0), ),
+                child: Text(DBManager().assets[widget.account].name, style: TextStyle(fontSize: 12.0), ),
               )
             ),
             Expanded(

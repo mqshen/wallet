@@ -101,8 +101,8 @@ class _MyWalletPageState extends State<MyWalletPage> {
             title: Text('报表'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(MyIcons.add, color: Colors.white, ),
-            title: Text(''),
+            icon: Icon(MyIcons.add, color: Colors.blue, ),
+            title: Text('记账'),
           ),BottomNavigationBarItem(
             icon: Icon(MyIcons.card),
             title: Text('资产'),
@@ -116,16 +116,16 @@ class _MyWalletPageState extends State<MyWalletPage> {
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
       ),
-      floatingActionButton: FloatingActionButton(
-            child: const Icon(Icons.add),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => AddRecordPage()),
-            );
-          },
-      ),
-      floatingActionButtonLocation: MyCenterButtonLocation(),//FloatingActionButtonLocation.centerDocked,
+//      floatingActionButton: FloatingActionButton(
+//            child: const Icon(Icons.add),
+//          onPressed: () {
+//            Navigator.push(
+//              context,
+//              MaterialPageRoute(builder: (context) => AddRecordPage()),
+//            );
+//          },
+//      ),
+//      floatingActionButtonLocation: MyCenterButtonLocation(),//FloatingActionButtonLocation.centerDocked,
     );
   }
 

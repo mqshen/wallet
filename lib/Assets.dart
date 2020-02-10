@@ -8,9 +8,50 @@ class Assets extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _assets();
+    int totalBalance = DBManager().assets.map((asset)=>asset.balance).fold(0, (x, y) => x + y);
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        title: Text(""),
+      ),
+      body: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.only(top: 15.0, bottom: 3.0, left: 10, right: 10),
+            child: Container(
+              decoration: new BoxDecoration(
+                borderRadius: new BorderRadius.all(const Radius.circular(6.0)),
+                border: Border.all(color: Colors.grey[300])
+              ),
+              child: SizedBox(
+                height: 65,
+                child: Row (
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: Text("资产", textAlign: TextAlign.center, style: TextStyle(fontSize: 18)),
+                    ),
+                    Expanded(
+                      flex: 6,
+                      child: Container(
+                        padding: const EdgeInsets.only(right: 10.0),
+                        alignment: Alignment.centerRight,
+                        child: Text(Utils.toCurrency(totalBalance), style: TextStyle(fontSize: 30, color: Colors.blue), textAlign: TextAlign.right,)
+                      )
+                    )
+                  ]
+                )
+              )
+            )
+          ),
+          Expanded(
+            child: _assets()
+          )
+        ]
+      )
+    );
   }
-
 
   ListView _assets() {
     return new ListView.builder(

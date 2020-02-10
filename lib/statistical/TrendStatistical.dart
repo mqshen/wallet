@@ -1,11 +1,7 @@
-import 'dart:collection';
-
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:wallet/database/DBManager.dart';
 import 'package:wallet/database/DbHelper.dart';
-import 'package:wallet/database/classify.dart';
 import 'package:wallet/widget/MyPicker.dart';
 
 import '../Constants.dart';
@@ -93,43 +89,61 @@ class _TrendChartState extends State<TrendChart> {
         String second = "收入";
         String third = "支出";
         String fourth = "结余";
+
+        Color backgroudColor = Color(0xFFF8F8F8);
+        Color secondColor = Color(0xFF777777);
+        Color thirdColor = Color(0xFF777777);
+        Color fourthColor = Color(0xFF777777);
+
         if(index > 0) {
-          MonthStatistical item = data[index];
-          first = '${index + 1}月';
+          backgroudColor = Colors.white;
+          MonthStatistical item = data[index - 1];
+          first = '${index}月';
+          if(item.income == 0) {
+            secondColor = Colors.grey[300];
+          }
+          if(item.spend == 0) {
+            thirdColor = Colors.grey[300];
+          }
+          if(item.income > item.spend) {
+            fourthColor = Color(0xFF5D76E2);
+          } else {
+            fourthColor = Color(0xFFDC696B);
+          }
           second = Utils.toCurrency(item.income);
           third = Utils.toCurrency(item.spend);
-          fourth = Utils.toCurrency(item.balance);
+          fourth = Utils.toCurrency(item.income - item.spend);
         }
-        double percent = 1;
         return new Container(
             height: 40,
             padding: EdgeInsets.only(left: 15.0, right: 15.0),
             decoration: BoxDecoration(
+                color: backgroudColor,
                 border: Border( bottom: BorderSide(color: Colors.grey[300]))
             ),
             child: Row(
               children: <Widget>[
                 Expanded(
-                  flex: 2,
-                  child: Text(first),
+                  flex: 1,
+                  child: Text(first, textAlign: TextAlign.right,),
                 ),
                 Expanded(
                   flex: 3,
-                  child: Text(second),
+                  child: Text(second, textAlign: TextAlign.right, style: TextStyle(color: secondColor),),
                 ),
                 Expanded(
-                    flex: 3,
-                    child:  Text(third),
+                  flex: 3,
+                  child: Text(third, textAlign: TextAlign.right, style: TextStyle(color: thirdColor)),
                 ),
                 Expanded(
-                    flex: 2,
-                    child: Text(fourth),
+                  flex: 3,
+                  child: Text(fourth, textAlign: TextAlign.right, style: TextStyle(color: fourthColor)),
                 )
               ],
             )
         );
       },
-      itemCount: data == null ? 0 : data.length,
+      itemCount: data == null ? 0 : data.length + 1,
     );
   }
 
@@ -146,7 +160,13 @@ class _TrendChartState extends State<TrendChart> {
     }
 
     DBHelper.findRecordsByYear(year).then((records) {
-      final List<MonthStatistical> data = List.generate(12, (index){
+      int size = 12;
+      DateTime now = DateTime.now();
+      if(now.year == year) {
+        size = now.month;
+      }
+
+      final List<MonthStatistical> data = List.generate(size, (index){
         return MonthStatistical(id: index + 1);
       });
       records.forEach((record) {
@@ -164,12 +184,19 @@ class _TrendChartState extends State<TrendChart> {
       List<charts.Series<MonthStatistical, int>> items = _createSampleData();
       chart = new charts.LineChart(seriesList,
         animate: animate,
-          domainAxis: new charts.NumericAxisSpec(
-            showAxisLine: false,
-              tickFormatterSpec: new charts.BasicNumericTickFormatterSpec.fromNumberFormat(
-                  new NumberFormat("#,##0月", "en_US")
-              )
-          )
+        domainAxis: charts.NumericAxisSpec(
+          tickProviderSpec: charts.BasicNumericTickProviderSpec(
+              zeroBound: false,
+              desiredTickCount: 12
+          ),
+          showAxisLine: false,
+          tickFormatterSpec: charts.BasicNumericTickFormatterSpec((value){
+            if(value % 2 == 0) {
+              return '${value.toInt()}月';
+            }
+            return "";
+          })
+        ),
       );
       setState(() {
         seriesList.addAll(items);
@@ -200,7 +227,7 @@ class _TrendChartState extends State<TrendChart> {
           id: '余额',
           colorFn: (_, __) => Utils.toChartColor(0xDC696B),
           domainFn: (MonthStatistical sales, _) => sales.id,
-          measureFn: (MonthStatistical sales, _) => sales.balance / 100,
+          measureFn: (MonthStatistical sales, _) => (sales.income - sales.spend) / 100,
           data: data)
     ];
   }
@@ -210,7 +237,42 @@ class MonthStatistical {
   final int id;
   int income;
   int spend;
-  int balance;
 
-  MonthStatistical({this.id , this.income = 0, this.spend = 0, this.balance = 0});
+  MonthStatistical({this.id , this.income = 0, this.spend = 0});
 }
+
+//
+//class MyNumericTickFormatterSpec extends charts.NumericTickFormatterSpec {
+//  @override
+//  charts.TickFormatter<num> createTickFormatter(charts.ChartContext context) {
+//    return MyTickFormatter();
+//  }
+//
+//}
+//
+//class MyTickFormatter extends charts.TickFormatter<num> {
+//  @override
+//  List<String> format(List<num> tickValues, Map<num, String> cache, {num stepSize}) {
+//    tickValues.map( (value) {
+//      // Try to use the cached formats first.
+//      print(cache);
+//      print(cache);
+//      print(cache);
+//      String formattedString = cache[value];
+//      if (formattedString == null) {
+//        formattedString = formatValue(value);
+//        cache[value] = formattedString;
+//      }
+//      return formattedString;
+//    }).toList();
+//  }
+//
+//
+//  String formatValue(num value){
+//    if(value % 2 == 0) {
+//      return '${value}月';
+//    }
+//    return "";
+//  }
+//
+//}
