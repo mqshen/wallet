@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:sqflite/sqflite.dart';
 
-import '../Constants.dart';
 import 'DBManager.dart';
 import 'classify.dart';
 
@@ -15,6 +14,7 @@ class DBHelper {
     return List.generate(maps.length, (i) {
       return Classify(
           id: maps[i]['id'],
+          type: maps[i]['type'],
           color: maps[i]['color'],
           image: maps[i]['image'],
           name: maps[i]['name']
@@ -39,10 +39,22 @@ class DBHelper {
     });
   }
 
+  static Future<int> updateAsset(Asset asset) async {
+    final Database db = await DBManager().database;
+
+    return db.update(
+      'assets',
+      asset.toMap(),
+      where: 'id = ?',
+      whereArgs: [asset.id],
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
 
   static Future<int> insertRecord(Record record) async {
     final Database db = await DBManager().database;
 
+    print(record.account);
     return db.insert(
       'record',
       record.toMap(),
@@ -75,6 +87,20 @@ class DBHelper {
   }
 
   static Future<List<Record>> findRecordsByYear(int year) async {
+//    final Database db = await DBManager().database;
+//
+//    DateTime start = new DateTime(year, 1, 1);
+//    DateTime end = new DateTime(year + 1, 1, 1);
+//
+//    String where = "time between ${start.millisecondsSinceEpoch} and ${end.millisecondsSinceEpoch}";
+//
+//    final List<Map<String, dynamic>> maps = await db.query('record',
+//        orderBy: "time desc", where: where);
+
+    return findRecordsByYearAndAccount(year, -1);
+  }
+
+  static Future<List<Record>> findRecordsByYearAndAccount(int year, int account) async {
     final Database db = await DBManager().database;
 
     DateTime start = new DateTime(year, 1, 1);
@@ -82,9 +108,17 @@ class DBHelper {
 
     String where = "time between ${start.millisecondsSinceEpoch} and ${end.millisecondsSinceEpoch}";
 
+    if(account > -1) {
+      where += " and account = ${account}";
+    }
+
     final List<Map<String, dynamic>> maps = await db.query('record',
         orderBy: "time desc", where: where);
 
+    return generateRecordList(maps);
+  }
+
+  static List<Record> generateRecordList(List<Map<String, dynamic>> maps ) {
     return List.generate(maps.length, (i) {
       return Record(
           id: maps[i]['id'],

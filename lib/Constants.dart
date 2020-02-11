@@ -15,6 +15,10 @@ class Constants {
   static const borderColorAlpha = 0xff000000;
   static const backgroundColorAlpha = 0xc0000000;
 
+
+  static const Income = 0;
+  static const Spend = 1;
+
 }
 
 class Utils {
@@ -67,12 +71,17 @@ class Utils {
   static String getClassifyImage(String image) {
     return 'images/classify_${image}.png';
   }
-   static charts.Color toChartColor(int color) {
-     int r = (color & 0xFF0000) >> 16;
-     int g = (color & 0xFF00) >> 8;
-     int b = (color & 0xFF);
-     return charts.Color(r: r, g: g, b: b);
-   }
+
+  static Color toColor(int colorIndex) {
+    return Color(Constants.borderColorAlpha | Constants.colors[colorIndex]);
+  }
+
+  static charts.Color toChartColor(int color) {
+    int r = (color & 0xFF0000) >> 16;
+    int g = (color & 0xFF00) >> 8;
+    int b = (color & 0xFF);
+    return charts.Color(r: r, g: g, b: b);
+  }
 }
 
 

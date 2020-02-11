@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'AddRecordPage.dart';
-import 'Assets.dart';
+import 'package:wallet/record/AddRecordPage.dart';
+import 'package:wallet/asset/Assets.dart';
 import 'Constants.dart';
 import 'MyIcons.dart';
 import 'Bill.dart';

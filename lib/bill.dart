@@ -302,6 +302,7 @@ class _Bill extends State<Bill> {
 }
 
 enum RecordType {
+  headItem,
   item,
   day,
   month,

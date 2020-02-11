@@ -3,11 +3,12 @@ class Classify {
   static const double iconSize = 30;
 
   final int id;
+  final int type;
   final int color;
   final String image;
   final String name;
 
-  Classify({this.id, this.color, this.image, this.name});
+  Classify({this.id, this.type, this.color, this.image, this.name});
 
 }
 
@@ -15,9 +16,19 @@ class Asset {
   final int id;
   final int color;
   final String image;
-  final String name;
-  final String description;
-  final int balance;
+  String name;
+  String description;
+  int balance;
+
+  Map<String, dynamic> toMap() {
+    return {
+      'color': color,
+      'image': image,
+      'name': name,
+      'description': description,
+      'balance': balance,
+    };
+  }
 
   Asset({this.id, this.color, this.image, this.name, this.description,
       this.balance});
