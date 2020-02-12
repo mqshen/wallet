@@ -1,14 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:wallet/widget/AssetPicker.dart';
 
-import '../widget/ButtonGroup.dart';
-import '../Constants.dart';
-import '../NumericalKeyboard.dart';
-import '../database/DBManager.dart';
-import '../database/DbHelper.dart';
-import '../database/classify.dart';
+
 import 'RecordEditor.dart';
+import 'Transfer.dart';
 
 class AddRecordPage extends StatefulWidget {
 
@@ -67,7 +62,7 @@ class _AddRecordPageSate extends State<AddRecordPage> with SingleTickerProviderS
           children: [
             RecordEditor(opType: 0),
             RecordEditor(opType: 1),
-            new Text("This is notification Tab View"),
+            TransferPage()
           ],
           controller: _tabController,
         )

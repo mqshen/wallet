@@ -4,6 +4,8 @@ import 'package:intl/intl.dart';
 
 import 'package:charts_flutter/flutter.dart' as charts;
 
+import 'NumericalKeyboard.dart';
+
 class Constants {
   static final int pageSize = 20;
 
@@ -18,8 +20,13 @@ class Constants {
 
   static const Income = 0;
   static const Spend = 1;
+  static const TransferOut = 3;
+  static const TransferIn = 4;
 
 }
+
+typedef MyKeyboardCallback(String key);
+typedef MyKeyboardConfirm();
 
 class Utils {
 
@@ -69,7 +76,11 @@ class Utils {
   }
 
   static String getClassifyImage(String image) {
-    return 'images/classify_${image}.png';
+    return 'images/classify_$image.png';
+  }
+
+  static String getIconImage(String image) {
+    return 'images/icon_$image.png';
   }
 
   static Color toColor(int colorIndex) {
@@ -81,6 +92,30 @@ class Utils {
     int g = (color & 0xFF00) >> 8;
     int b = (color & 0xFF);
     return charts.Color(r: r, g: g, b: b);
+  }
+
+  static void amountKeyPressed(int key, String amount, MyKeyboardCallback callback, MyKeyboardConfirm confirm) {
+    String result = amount;
+    if(key == NumericalKeyboard.confirmKey) {
+      confirm();
+    } else {
+      if (key == NumericalKeyboard.clearKey) {
+        result = "";
+      } else if (key == NumericalKeyboard.backspaceKey) {
+        result = amount.substring(0, amount.length - 1);
+      } else {
+        int index = amount.indexOf("\.");
+        if (key == NumericalKeyboard.pointKey) {
+          if(index < 0)
+            result = '$amount.';
+        } else {
+          if(index < 0 || amount.length - index < 3) {
+            result = '$amount$key';
+          }
+        }
+      }
+      callback(result);
+    }
   }
 }
 

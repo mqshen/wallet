@@ -40,49 +40,32 @@ class _RecordEditorState extends State<RecordEditor> {
   @override
   Widget build(BuildContext context) {
     return Column(
-        children: [
-          _addRecord,
-          Expanded( child: ClassifyWidget(
-            classifyType: widget.opType,
-            onTab: (index){
-              classify = index;
-              Classify selectedClassify = DBManager().classifies[index];
-              _addRecord.state.setState(() {
-                _addRecord.image = selectedClassify.image;
-                _addRecord.name = selectedClassify.name;
+      children: [
+        _addRecord,
+        Expanded( child: ClassifyWidget(
+          classifyType: widget.opType,
+          onTab: (index){
+            classify = index;
+            Classify selectedClassify = DBManager().classifies[index];
+            _addRecord.state.setState(() {
+              _addRecord.image = selectedClassify.image;
+              _addRecord.name = selectedClassify.name;
+            });
+          })
+        ),
+        _recordStatus,
+        NumericalKeyboard(
+          onKeyPressed: (key) {
+            Utils.amountKeyPressed(key, amount, (result){
+              amount = result;
+              _addRecord.state.setState((){
+                _addRecord.amount = Utils.stringToCurrency(result);
               });
-            })
-          ),
-          _recordStatus,
-          NumericalKeyboard(
-              onKeyPressed: amountKeyPressed
-          ),
-        ]
+            }, saveRecord);
+          }
+        ),
+      ]
     );
-  }
-
-
-  void amountKeyPressed(int key) {
-    if(key == NumericalKeyboard.confirmKey) {
-      saveRecord();
-    } else {
-      if (key == NumericalKeyboard.clearKey) {
-        amount = "";
-      } else if (key == NumericalKeyboard.backspaceKey) {
-        amount = amount.substring(0, amount.length - 1);
-      } else {
-        int index = amount.indexOf("\.");
-        if (key == NumericalKeyboard.pointKey) {
-          if(index < 0)
-            amount = '${amount}.';
-        } else if(amount.length - index < 3) {
-          amount = '${amount}${key}';
-        }
-      }
-      _addRecord.state.setState((){
-        _addRecord.amount = Utils.stringToCurrency(amount);
-      });
-    }
   }
 
   void saveRecord() {

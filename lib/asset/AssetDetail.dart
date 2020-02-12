@@ -120,8 +120,7 @@ class _AssetDetailState extends State<AssetDetail> {
                       alignment: Alignment.centerLeft,
                       child: Column(
                           children: [
-                            Text('流入：${Utils.toCurrency(recordItem.leftAmount)}', ),
-                            Text('流出：${Utils.toCurrency(recordItem.rightAmount)}'),
+                            Text('流入：${Utils.toCurrency(recordItem.leftAmount)}\n流出：${Utils.toCurrency(recordItem.rightAmount)}', textAlign: TextAlign.left,),
                           ]
                       )
                   ),
@@ -137,8 +136,11 @@ class _AssetDetailState extends State<AssetDetail> {
             content = '-${Utils.toCurrency(recordItem.rightAmount)}';
           }
           return Container(
-            color: Colors.grey[300],
-            padding: const EdgeInsets.all( 10.0),
+            padding: const EdgeInsets.all( 2.0),
+            decoration: BoxDecoration(
+              border: Border( bottom: BorderSide(color: Colors.grey[350])),
+              color: Colors.grey[300],
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -198,7 +200,10 @@ class _AssetDetailState extends State<AssetDetail> {
 
         String classifyName = "";
         String classifyImage = "eat";
-        if(record.classify < classifies.length) {
+        if(record.type == Constants.TransferIn || record.type == Constants.TransferOut) {
+          classifyName = "转账";
+          classifyImage = "transfer";
+        } else if(record.classify < classifies.length) {
           classifyName = classifies[record.classify].name;
           classifyImage = classifies[record.classify].image;
         }
@@ -209,9 +214,10 @@ class _AssetDetailState extends State<AssetDetail> {
           classifyImage: classifyImage,
         );
         if(billItem.id != day) {
+          day = billItem.id;
           billItem.type = RecordType.headItem;
         }
-        if(record.type == 0) {
+        if(record.type == Constants.Income || record.type == Constants.TransferIn) {
           income += record.amount;
           monthItem.leftAmount += record.amount;
           billItem.leftAmount = record.amount;

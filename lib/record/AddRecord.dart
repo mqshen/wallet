@@ -144,68 +144,74 @@ class _RecordStatus extends State<RecordStatus> {
 
   @override
   Widget build(BuildContext context) {
+    List<Widget> content = new List();
+    content.add(Container(
+        height: 30,
+        padding: EdgeInsets.only(right: 10.0),
+        child: FlatButton(
+          color: Colors.white,
+          textColor: Colors.blue,
+          shape: RoundedRectangleBorder(
+              borderRadius: new BorderRadius.circular(15.0),
+              side: BorderSide(color: Colors.blue)
+          ),
+          onPressed: () {
+            _selectDate(context);
+          },
+          child: Text(Utils.formatDate(widget.date), style: TextStyle(fontSize: 12.0), ),
+        )
+    ));
+    if(widget.account > -1) {
+      content.add(Container(
+          height: 30,
+          child: FlatButton(
+            color: Colors.white,
+            textColor: Colors.blue,
+            shape: RoundedRectangleBorder(
+                borderRadius: new BorderRadius.circular(15.0),
+                side: BorderSide(color: Colors.blue)
+            ),
+            onPressed: () {
+              showCupertinoModalPopup(
+                context: context,
+                builder: (BuildContext context) {
+                  return AssetPicker(selected: widget.account, onTap: (index) {
+                    Navigator.of(context, rootNavigator: true).pop();
+                    setState(() {
+                      widget.account = index;
+                    });
+                  },);
+                },
+              );
+            },
+            child: Text(DBManager().assets[widget.account].name,
+              style: TextStyle(fontSize: 12.0),),
+          )
+      ));
+    }
+
+    content.add(Expanded(
+      flex: 2,
+      child: IconButton(
+        padding: const EdgeInsets.only(right: 10.0),
+        alignment: Alignment.centerRight,
+        icon: Icon(Icons.edit),
+      ),
+    ));
+
+
     return new Container(
         height: 50,
         padding: EdgeInsets.only(left: 10.0, right: 10.0),
         decoration: BoxDecoration(
             color: Colors.grey[200],
             border: Border(
-                top: BorderSide(color: Colors.grey),
-                bottom: BorderSide(color: Colors.grey)
+                top: BorderSide(color: Colors.grey[300]),
+                bottom: BorderSide(color: Colors.grey[300])
             )
         ),
         child: Row(
-          children: <Widget>[
-            Container(
-                height: 30,
-                padding: EdgeInsets.only(right: 10.0),
-                child: FlatButton(
-                  color: Colors.white,
-                  textColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: new BorderRadius.circular(15.0),
-                      side: BorderSide(color: Colors.blue)
-                  ),
-                  onPressed: () {
-                    _selectDate(context);
-                  },
-                  child: Text(Utils.formatDate(widget.date), style: TextStyle(fontSize: 12.0), ),
-                )
-            ),
-            Container(
-                height: 30,
-                child: FlatButton(
-                  color: Colors.white,
-                  textColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: new BorderRadius.circular(15.0),
-                      side: BorderSide(color: Colors.blue)
-                  ),
-                  onPressed: () {
-                    showCupertinoModalPopup(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AssetPicker(selected: widget.account, onTap: (index) {
-                          Navigator.of(context, rootNavigator: true).pop();
-                          setState(() {
-                            widget.account = index;
-                          });
-                        },);
-                      },
-                    );
-                  },
-                  child: Text(DBManager().assets[widget.account].name, style: TextStyle(fontSize: 12.0), ),
-                )
-            ),
-            Expanded(
-              flex: 2,
-              child: IconButton(
-                padding: const EdgeInsets.only(right: 10.0),
-                alignment: Alignment.centerRight,
-                icon: Icon(Icons.edit),
-              ),
-            )
-          ],
+          children: content
         )
     );
   }

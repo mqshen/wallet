@@ -151,7 +151,7 @@ class _Bill extends State<Bill> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 SizedBox(
-                  width: 50,
+                  width: 30,
                   height: lineHeight,
                   child: Visibility(
                     child: FlatButton(
@@ -207,7 +207,7 @@ class _Bill extends State<Bill> {
                   ),
                 ),
                 SizedBox(
-                  width: 50,
+                  width: 30,
                   height: lineHeight,
                   child: Visibility(
                     child: Icon(Icons.edit, size: 14, color: Colors.blue),

@@ -68,7 +68,8 @@ class DBHelper {
     DateTime start = new DateTime(year, month, 1);
     DateTime end = new DateTime(year, month + 1, 1);
 
-    String where = "time between ${start.millisecondsSinceEpoch} and ${end.millisecondsSinceEpoch}";
+    String where = "time between ${start.millisecondsSinceEpoch} "
+        "and ${end.millisecondsSinceEpoch} and type < 2";
 
     final List<Map<String, dynamic>> maps = await db.query('record',
         orderBy: "time desc", where: where);
