@@ -65,6 +65,7 @@ class _ClassifyChart extends State<ClassifyChart> {
 
   List<StatisticalItem> data;
   int totalAmount;
+  int type = 1;
 
   _ClassifyChart():super() {
     refreshData();
@@ -72,16 +73,46 @@ class _ClassifyChart extends State<ClassifyChart> {
 
   @override
   Widget build(BuildContext context) {
+    String title;
+    if(type == 0) {
+      title = "总收入";
+    } else {
+      title = "总支出";
+    }
 
     return Column(
       children: [
         SizedBox(
           height: 250,
-          child: Container(
-            decoration: BoxDecoration(
-                border: Border( bottom: BorderSide(color: Colors.grey[300]))
-            ),
-            child: chart,
+          child: Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  border: Border( bottom: BorderSide(color: Colors.grey[300]))
+                ),
+                child: chart,
+              ),
+              Positioned(
+                child: Align(
+                  alignment: Alignment.center,
+                  child: GestureDetector(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Text(title, style: TextStyle(fontSize: 12),),
+                        Text(Utils.toCurrency(totalAmount), style: TextStyle(fontSize: 18),),
+                        Icon(Icons.loop, color: Colors.grey[300], size: 16,)
+                      ],
+                    ),
+                    onTap: () {
+                      type ^= 1;
+                      refreshData();
+                    },
+                  )
+                )
+              ),
+            ]
           )
         ),
         Expanded(child: buildListView(context))
@@ -144,7 +175,7 @@ class _ClassifyChart extends State<ClassifyChart> {
       year = widget.dateTime.year;
       month = widget.dateTime.month;
     }
-    DBHelper.records(year, month).then((records) {
+    DBHelper.recordsByType(year, month, type).then((records) {
       Map<int, int> result = HashMap();
       records.forEach((record) {
         int amount = 0;

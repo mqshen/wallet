@@ -54,7 +54,6 @@ class DBHelper {
   static Future<int> insertRecord(Record record) async {
     final Database db = await DBManager().database;
 
-    print(record.account);
     return db.insert(
       'record',
       record.toMap(),
@@ -63,13 +62,54 @@ class DBHelper {
   }
 
   static Future<List<Record>> records(int year, int month) async {
+
+    DateTime start = new DateTime(year, month, 1);
+    DateTime end = new DateTime(year, month + 1, 1);
+
+    return findRecordsByTime(start, end);
+
+  }
+
+  static Future<List<Record>> findRecordsByDay(DateTime dateTime) async {
+    DateTime start = new DateTime(dateTime.year, dateTime.month, dateTime.day);
+    DateTime end = new DateTime(dateTime.year, dateTime.month, dateTime.day + 1);
+
+    return findRecordsByTime(start, end);
+  }
+
+  static Future<List<Record>> findRecordsByTime(DateTime start, DateTime end) async {
+    final Database db = await DBManager().database;
+
+    String where = "time between ${start.millisecondsSinceEpoch} "
+        "and ${end.millisecondsSinceEpoch} and type < 2";
+
+    final List<Map<String, dynamic>> maps = await db.query('record',
+        orderBy: "time desc", where: where);
+
+    return List.generate(maps.length, (i) {
+      return Record(
+          id: maps[i]['id'],
+          amount: maps[i]['amount'],
+          type: maps[i]['type'],
+          classify: maps[i]['classify'],
+          time: maps[i]['time'],
+          account: maps[i]['account'],
+          remark: maps[i]['remark']
+      );
+    });
+  }
+
+
+
+
+  static Future<List<Record>> recordsByType(int year, int month, int type) async {
     final Database db = await DBManager().database;
 
     DateTime start = new DateTime(year, month, 1);
     DateTime end = new DateTime(year, month + 1, 1);
 
     String where = "time between ${start.millisecondsSinceEpoch} "
-        "and ${end.millisecondsSinceEpoch} and type < 2";
+        "and ${end.millisecondsSinceEpoch} and type = $type";
 
     final List<Map<String, dynamic>> maps = await db.query('record',
         orderBy: "time desc", where: where);

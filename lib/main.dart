@@ -93,21 +93,21 @@ class _MyWalletPageState extends State<MyWalletPage> {
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(MyIcons.book),
+            icon: Icon(Icons.book),
             title: Text('账单'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(MyIcons.chart),
+            icon: Icon(Icons.show_chart),
             title: Text('报表'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(MyIcons.add, color: Colors.blue, ),
+            icon: Icon(Icons.add_circle_outline, color: Colors.blue, ),
             title: Text('记账'),
           ),BottomNavigationBarItem(
-            icon: Icon(MyIcons.card),
+            icon: Icon(Icons.credit_card),
             title: Text('资产'),
           ),BottomNavigationBarItem(
-            icon: Icon(MyIcons.person),
+            icon: Icon(Icons.person),
             title: Text('更多'),
           ),
         ],

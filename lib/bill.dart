@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:wallet/widget/CircleProcessor.dart';
 
+import 'BillItem.dart';
 import 'Constants.dart';
 import 'TimeLineIcon.dart';
+import 'calendar/Calendar.dart';
 import 'database/DBManager.dart';
 import 'database/DbHelper.dart';
 import 'database/classify.dart';
@@ -44,7 +46,6 @@ class _Bill extends State<Bill> {
 //        _callAPIToGetListOfData(); // Hit API to get new data
 //      }
 //    }
-    print(controller.position.extentAfter);
     if (controller.position.extentAfter <= 0 && isPageLoading == false) {
       month -= 1;
       _callAPIToGetListOfData();
@@ -119,7 +120,15 @@ class _Bill extends State<Bill> {
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
-          title: Text(""),
+          title: Text("账单"),
+          actions: <Widget>[
+            IconButton(
+              icon: new Icon(Icons.today,
+                color: Colors.black,),
+              onPressed: () => Navigator.push( context,
+                MaterialPageRoute(builder: (context) => Calendar()))
+            ),
+          ],
         ),
         body: Column(
           children: [
@@ -146,7 +155,7 @@ class _Bill extends State<Bill> {
           } else if (recordItem.rightAmount > 0) {
             rightText = '${recordItem.classifyName} ${Utils.toCurrency(recordItem.rightAmount)}';
           }
-          return FlatButton(
+          return GestureDetector(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -219,7 +228,7 @@ class _Bill extends State<Bill> {
                 ),
               ],
             ),
-            onPressed: () {
+            onTap: () {
               doHidden();
             },
           );
@@ -299,33 +308,6 @@ class _Bill extends State<Bill> {
       });
     }
   }
-}
-
-enum RecordType {
-  headItem,
-  item,
-  day,
-  month,
-}
-
-class BillItem {
-  int id;
-  RecordType type;
-  bool show;
-  int leftAmount;
-  int rightAmount;
-  String classifyName;
-  String classifyImage;
-
-  BillItem({
-    this.id = 0,
-    this.type,
-    this.show = false,
-    this.leftAmount = 0,
-    this.rightAmount = 0,
-    this.classifyName = "",
-    this.classifyImage = ""});
-
 }
 
 class BillHeadView extends StatefulWidget {

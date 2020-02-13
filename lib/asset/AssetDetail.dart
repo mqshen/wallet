@@ -4,7 +4,7 @@ import 'package:wallet/database/DBManager.dart';
 import 'package:wallet/database/DbHelper.dart';
 import 'package:wallet/database/classify.dart';
 
-import '../Bill.dart';
+import '../BillItem.dart';
 import '../Constants.dart';
 
 class AssetDetail extends StatefulWidget {
@@ -184,7 +184,6 @@ class _AssetDetailState extends State<AssetDetail> {
     if(isPageLoading)
       return;
     isPageLoading = true;
-    print(widget.assetId);
     DBHelper.findRecordsByYearAndAccount(widget.year, widget.assetId).then((records) {
       List<Classify> classifies = DBManager().classifies;
       BillItem monthItem = BillItem(
