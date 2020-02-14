@@ -57,7 +57,58 @@ class DBHelper {
     return db.insert(
       'record',
       record.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.fail,
+    );
+  }
+
+  static Future<int> updateRecord(Record record) async {
+    final Database db = await DBManager().database;
+
+    return db.update(
+      'record',
+      record.toMap(),
+      where: 'id = ?',
+      whereArgs: [record.id],
       conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  static Future<Record> findRecordById(int id) async {
+    final Database db = await DBManager().database;
+
+    Future<Record> result = db.query(
+        'record',
+        where: 'id = ?',
+        whereArgs: [id]
+    ).then((result){
+      if(result.length > 0)
+        return generateRecord(result[0]);
+      else
+        return null;
+    });
+
+    return result;
+  }
+
+  static Record generateRecord(Map<String, dynamic> result) {
+    return Record(
+        id: result['id'],
+        amount: result['amount'],
+        type: result['type'],
+        classify: result['classify'],
+        time: result['time'],
+        account: result['account'],
+        remark: result['remark']
+    );
+  }
+
+  static Future<int> deleteRecord(int id) async {
+    final Database db = await DBManager().database;
+
+    return db.delete(
+      'record',
+      where: 'id = ?',
+      whereArgs: [id]
     );
   }
 
@@ -87,20 +138,9 @@ class DBHelper {
         orderBy: "time desc", where: where);
 
     return List.generate(maps.length, (i) {
-      return Record(
-          id: maps[i]['id'],
-          amount: maps[i]['amount'],
-          type: maps[i]['type'],
-          classify: maps[i]['classify'],
-          time: maps[i]['time'],
-          account: maps[i]['account'],
-          remark: maps[i]['remark']
-      );
+      return generateRecord(maps[i]);
     });
   }
-
-
-
 
   static Future<List<Record>> recordsByType(int year, int month, int type) async {
     final Database db = await DBManager().database;
@@ -115,15 +155,7 @@ class DBHelper {
         orderBy: "time desc", where: where);
 
     return List.generate(maps.length, (i) {
-      return Record(
-          id: maps[i]['id'],
-          amount: maps[i]['amount'],
-          type: maps[i]['type'],
-          classify: maps[i]['classify'],
-          time: maps[i]['time'],
-          account: maps[i]['account'],
-          remark: maps[i]['remark']
-      );
+      return generateRecord(maps[i]);
     });
   }
 

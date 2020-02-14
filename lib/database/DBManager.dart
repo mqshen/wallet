@@ -24,9 +24,6 @@ class DBManager {
   void init() async {
     String dataPath = await getDatabasesPath();
     database = openDatabase(
-      // Set the path to the database. Note: Using the `join` function from the
-      // `path` package is best practice to ensure the path is correctly
-      // constructed for each platform.
       join(dataPath, 'wallet.db'),
       onCreate: (db, version) async {
         // Run the CREATE TABLE statement on the database.
@@ -77,8 +74,10 @@ class DBManager {
             "account INTEGER,"
             "remark TEXT);");
       },
-      // Set the version. This executes the onCreate function and provides a
-      // path to perform database upgrades and downgrades.
+//      onUpgrade: (db, oldVersion, version) async {
+//        if(oldVersion == 1 && version == 2)
+//        db.execute("ALTER TABLE record ADD remark TEXT;");
+//      },
       version: 1,
     );
 

@@ -114,11 +114,13 @@ class ClassifyWidget extends StatelessWidget {
 class RecordStatus extends StatefulWidget {
   DateTime date;
   int account;
+  VoidCallback remarkShow;
 
 
   RecordStatus({ Key key,
     this.date,
-    this.account
+    this.account,
+    this.remarkShow
   }):super(key: key);
 
   @override
@@ -196,6 +198,9 @@ class _RecordStatus extends State<RecordStatus> {
         padding: const EdgeInsets.only(right: 10.0),
         alignment: Alignment.centerRight,
         icon: Icon(Icons.edit),
+        onPressed: () {
+          widget.remarkShow();
+        },
       ),
     ));
 

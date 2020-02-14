@@ -9,12 +9,14 @@ class TimeLineIcon extends CustomPainter {
   Color lineColor;
   double paintWidth;
   bool isTimeLine;
+  final double top;
 
   TimeLineIcon({this.circleSize,
     this.myGradient,
     this.isTimeLine = false,
     this.lineColor = Colors.redAccent,
-    this.paintWidth = 4
+    this.paintWidth = 1,
+    this.top = 0
   });
 
   Paint _paint = Paint()
@@ -43,7 +45,7 @@ class TimeLineIcon extends CustomPainter {
     if(circleSize > 0) {
       _paint.style = PaintingStyle.fill;
       canvas.drawCircle(
-          Offset(size.width / 2, size.height / 2), circleSize, _paint);
+          Offset(size.width / 2, (size.height + top) / 2 ), circleSize, _paint);
     }
   }
 

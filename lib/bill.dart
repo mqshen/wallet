@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wallet/record/AddRecordPage.dart';
 import 'package:wallet/widget/CircleProcessor.dart';
 
 import 'BillItem.dart';
@@ -17,8 +18,7 @@ class Bill extends StatefulWidget {
 }
 
 class _Bill extends State<Bill> {
-  static const double lineHeight = 48.0;
-  int _currentSelected = -1;
+  TimeLineBillItem _currentSelected = null;
   int year = 0;
   int month = 0;
   bool isPageLoading = false;
@@ -82,9 +82,11 @@ class _Bill extends State<Bill> {
           classifyImage = classifies[record.classify].image;
         }
         BillItem billItem = BillItem(
+          id: record.id,
           type: RecordType.item,
           classifyName: classifyName,
           classifyImage: classifyImage,
+          remark: record.remark,
         );
         if(record.type == 0) {
           dayItem.leftAmount += record.amount;
@@ -147,171 +149,27 @@ class _Bill extends State<Bill> {
       controller: controller,
       itemBuilder: (BuildContext context, int index) {
         BillItem recordItem = arrayOfProducts[index];
-        String leftText = "";
-        String rightText = "";
-        if(RecordType.item == recordItem.type) {
-          if (recordItem.leftAmount > 0) {
-            leftText = '${Utils.toCurrency(recordItem.leftAmount)} ${recordItem.classifyName}';
-          } else if (recordItem.rightAmount > 0) {
-            rightText = '${recordItem.classifyName} ${Utils.toCurrency(recordItem.rightAmount)}';
-          }
-          return GestureDetector(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                SizedBox(
-                  width: 30,
-                  height: lineHeight,
-                  child: Visibility(
-                    child: FlatButton(
-                      padding: EdgeInsets.only(top: 10.0),
-                      child: Icon(Icons.delete, size: 14, color: Colors.red,),
-                      onPressed: () {},
-                    ),
-                    maintainSize: true,
-                    maintainAnimation: true,
-                    maintainState: true,
-                    visible: recordItem.show,
-                  ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Container(
-                      height: lineHeight,
-                      padding: const EdgeInsets.only(right: 5.0),
-                      alignment: Alignment.centerRight,
-                      child: new Text(leftText, textAlign: TextAlign.right,)
-                  ),
-                ),
-                CustomPaint(
-                  painter: new TimeLineIcon(
-                      paintWidth: 1, //widget.timeAxisLineWidth,
-                      circleSize: 0, //widget.lineToLeft,
-                      lineColor: Colors.grey[300],
-                      isTimeLine: true
-                  ),
-                  child: Container(
-                    width: 40,
-                    child: IconButton(
-                      //child: Center(
-                      icon: Image.asset(Utils.getClassifyImage(recordItem.classifyImage),),
-                      //),
-                      onPressed: () {
-                        doHidden();
-                        _currentSelected = index;
-                        setState(() {
-                          recordItem.show = !recordItem.show;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 3,
-                  child: Container(
-                      height: lineHeight,
-                      padding: const EdgeInsets.only(left: 5.0),
-                      alignment: Alignment.centerLeft,
-                      child: new Text(rightText, textAlign: TextAlign.left,)
-                  ),
-                ),
-                SizedBox(
-                  width: 30,
-                  height: lineHeight,
-                  child: Visibility(
-                    child: Icon(Icons.edit, size: 14, color: Colors.blue),
-                    maintainSize: true,
-                    maintainAnimation: true,
-                    maintainState: true,
-                    visible: recordItem.show,
-                  ),
-                ),
-              ],
-            ),
-            onTap: () {
-              doHidden();
-            },
-          );
-        } else {
-          String centerText = '${recordItem.id}';
-          double circleSize = 12;
-          Widget widget;
-          if(RecordType.day == recordItem.type) {
-            centerText = centerText + "日";
-            widget = Center(
-                child: Text(centerText, style: TextStyle(fontSize: 8),)
-            );
-            if(recordItem.leftAmount > 0) {
-              leftText = '${Utils.toCurrency(recordItem.leftAmount)} 收入';
-            }
-            if(recordItem.rightAmount > 0) {
-              rightText = '支出 ${Utils.toCurrency(recordItem.rightAmount)}';
-            }
-          }
-          if(RecordType.month == recordItem.type) {
-            centerText = centerText + "月";
-            widget = Align(
-                alignment: Alignment.centerLeft ,
-                child: Text(centerText, style: TextStyle(fontSize: 10),)
-            );
-            circleSize = 3;
-          }
-
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Expanded(
-                flex: 3,
-                child: Container(
-                    height: lineHeight,
-                    padding: const EdgeInsets.only(right: 5.0),
-                    alignment: Alignment.centerRight,
-                    child: new Text(leftText, textAlign: TextAlign.right,)
-                ),
-              ),
-              CustomPaint(
-                painter: new TimeLineIcon(
-                    paintWidth: 1, //widget.timeAxisLineWidth,
-                    circleSize: circleSize, //widget.lineToLeft,
-                    lineColor: Colors.grey[300],
-                    isTimeLine: true
-                ),
-                child: Container (
-                  width: 40,
-                  height: lineHeight,
-                  child: widget
-                ),
-              ),
-              Expanded(
-                flex: 3,
-                child: Container(
-                    height: lineHeight,
-                    padding: const EdgeInsets.only(left: 5.0),
-                    alignment: Alignment.centerLeft,
-                    child: new Text(rightText, textAlign: TextAlign.left,)
-                ),
-              ),
-            ],
-          );
-          //return new Text("");
-        }
+        TimeLineBillItem timeLineBillItem = TimeLineBillItem(recordItem: recordItem, index: index,);
+        timeLineBillItem.onTap = (i) {
+          doHidden();
+          if(i > -1)
+            _currentSelected = timeLineBillItem;
+        };
+        return timeLineBillItem;
       },
       itemCount: arrayOfProducts == null ? 0 : arrayOfProducts.length,
     );
   }
 
   void doHidden() {
-    if(_currentSelected >= 0) {
-      BillItem recordItem = arrayOfProducts[_currentSelected];
-      setState(() {
-        recordItem.show = false;
-      });
+    if(_currentSelected != null) {
+      _currentSelected.endEdit();
     }
   }
 }
 
 class BillHeadView extends StatefulWidget {
-  BillItem billItem = null;
+  BillItem billItem;
 
   final State<StatefulWidget> state = _BillHeadView();
 
@@ -391,6 +249,247 @@ class _BillHeadView extends State<BillHeadView> {
         ),
       ],
     );
+  }
+
+}
+
+
+class TimeLineBillItem extends StatefulWidget {
+  BillItem recordItem;
+  ValueChanged<int> onTap;
+  int index;
+  _TimeLineBillItemState state;
+
+  TimeLineBillItem({Key key, this.index, this.recordItem, this.onTap}):
+        assert(index != null),
+        super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    state = _TimeLineBillItemState();
+    return state;
+  }
+
+  void endEdit() {
+    recordItem.show = false;
+    if(state != null) {
+      state.setState(() {});
+    }
+  }
+
+}
+
+class _TimeLineBillItemState extends State<TimeLineBillItem> {
+
+  @override
+  Widget build(BuildContext context) {
+    final recordItem = widget.recordItem;
+    Widget leftWidget;
+    Widget rightWidget;
+    double lineHeight = 70.0;
+
+    TextStyle remarkStyle = TextStyle(color: Colors.grey[500], fontSize: 12);
+    if(RecordType.item == recordItem.type) {
+      EdgeInsets padding = EdgeInsets.only(top: 25.0, bottom: 0.0);
+      if (recordItem.leftAmount > 0) {
+        String content = '${Utils.toCurrency(recordItem.leftAmount)} ${recordItem.classifyName}';
+
+          leftWidget = Container(
+              padding: padding,
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(content, textAlign: TextAlign.right,),
+                Text(recordItem.remark, textAlign: TextAlign.right, style: remarkStyle,),
+              ]
+          ));
+        rightWidget = new Container();
+
+      } else if (recordItem.rightAmount > 0) {
+        String content = '${recordItem.classifyName} ${Utils.toCurrency(recordItem.rightAmount)}';
+
+          rightWidget = Container(
+              padding: padding,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(content, textAlign: TextAlign.left,),
+                Text(recordItem.remark, textAlign: TextAlign.left, style: remarkStyle,),
+              ]
+            )
+          );
+        leftWidget = new Container();
+      }
+
+      return GestureDetector(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            SizedBox(
+              width: 30,
+              height: lineHeight,
+              child: Visibility(
+                child: FlatButton(
+                  padding: EdgeInsets.only(top: 10.0),
+                  child: Icon(Icons.delete, size: 14, color: Colors.red,),
+                  onPressed: () {
+                    Utils.showConfirmDialog(context, "确定删除么？", (){
+                      DBHelper.findRecordById(recordItem.id).then((record) {
+                        DBHelper.deleteRecord(recordItem.id).whenComplete((){
+                          Asset asset = DBManager().assets[record.account];
+                          if (Constants.Income == record.type) {
+                            asset.balance -= record.amount;
+                          } else {
+                            asset.balance += record.amount;
+                          }
+                          DBHelper.updateAsset(asset);
+                        });
+                      });
+                    });
+                  },
+                ),
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                visible: recordItem.show,
+              ),
+            ),
+            Expanded(
+              flex: 3,
+              child: Container(
+                  height: lineHeight,
+                  padding: const EdgeInsets.only(right: 5.0),
+                  alignment: Alignment.centerRight,
+                  child: leftWidget
+              ),
+            ),
+            CustomPaint(
+                painter: new TimeLineIcon(
+                    paintWidth: 1, //widget.timeAxisLineWidth,
+                    circleSize: 0, //widget.lineToLeft,
+                    lineColor: Colors.grey[300],
+                    isTimeLine: true
+                ),
+                size: Size(40, lineHeight),
+                child: GestureDetector(
+                  child:
+                  Container(
+                    padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
+                    child: SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: Image.asset(Utils.getClassifyImage(recordItem.classifyImage),),
+                    ),
+                  ),
+                  onTap: () {
+                    if(!recordItem.show)
+                      widget.onTap(widget.index);
+                    setState(() {
+                      recordItem.show = !recordItem.show;
+                    });
+                  },
+                )
+            ),
+            Expanded(
+              flex: 3,
+              child: Container(
+                  height: lineHeight,
+                  padding: const EdgeInsets.only(left: 5.0),
+                  alignment: Alignment.centerLeft,
+                  child: rightWidget
+              ),
+            ),
+            SizedBox(
+              width: 30,
+              height: lineHeight,
+              child: Visibility(
+                child: FlatButton(
+                  padding: EdgeInsets.only(top: 10.0),
+                  child: Icon(Icons.edit, size: 14, color: Colors.blueAccent,),
+                  onPressed: () {
+                    DBHelper.findRecordById(recordItem.id).then((record){
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => AddRecordPage(record: record,)));
+                    });
+                  },
+                ),
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                visible: recordItem.show,
+              ),
+            ),
+          ],
+        ),
+        onTap: () {
+          widget.onTap(-1);
+        },
+      );
+    } else {
+      String centerText = '${recordItem.id}';
+      double circleSize = 12;
+      Widget widget;
+      String leftText = "";
+      String rightText = "";
+      if(RecordType.day == recordItem.type) {
+        centerText = centerText + "日";
+        widget = Center(
+            child: Text(centerText, style: TextStyle(fontSize: 8),)
+        );
+        if(recordItem.leftAmount > 0) {
+          leftText = '${Utils.toCurrency(recordItem.leftAmount)} 收入';
+        }
+        if(recordItem.rightAmount > 0) {
+          rightText = '支出 ${Utils.toCurrency(recordItem.rightAmount)}';
+        }
+      }
+      if(RecordType.month == recordItem.type) {
+        centerText = centerText + "月";
+        widget = Align(
+            alignment: Alignment.centerLeft ,
+            child: Text(centerText, style: TextStyle(fontSize: 10),)
+        );
+        circleSize = 3;
+      }
+
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          Expanded(
+            flex: 3,
+            child: Container(
+                height: 40,
+                padding: const EdgeInsets.only(right: 5.0),
+                alignment: Alignment.centerRight,
+                child: new Text(leftText, textAlign: TextAlign.right,)
+            ),
+          ),
+          CustomPaint(
+            painter: new TimeLineIcon(
+                paintWidth: 1, //widget.timeAxisLineWidth,
+                circleSize: circleSize, //widget.lineToLeft,
+                lineColor: Colors.grey[300],
+                isTimeLine: true
+            ),
+            child: Container (
+                width: 40,
+                height: lineHeight,
+                child: widget
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Container(
+                height: 40,
+                padding: const EdgeInsets.only(left: 5.0),
+                alignment: Alignment.centerLeft,
+                child: new Text(rightText, textAlign: TextAlign.left,)
+            ),
+          ),
+        ],
+      );
+      //return new Text("");
+    }
   }
 
 }

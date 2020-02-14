@@ -119,6 +119,39 @@ class Utils {
       callback(result);
     }
   }
+
+
+  static void showConfirmDialog(BuildContext context, String tips, VoidCallback callback) async {
+    await showDialog<String>(
+        context: context,
+        builder: (context) {
+          return new AlertDialog(
+              contentPadding: const EdgeInsets.all(16.0),
+              content: new Row(
+                children: <Widget>[
+                  new Expanded(
+                    child: Text(tips),
+                  )
+                ],
+              ),
+              actions: <Widget>[
+                new FlatButton(
+                    child: const Text('取消'),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    }),
+                new FlatButton(
+                    child: const Text('确定'),
+                    onPressed: () {
+                      callback();
+                      Navigator.pop(context);
+                    })
+              ],
+            );
+        }
+    );
+  }
+
 }
 
 

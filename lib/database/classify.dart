@@ -36,12 +36,12 @@ class Asset {
 
 class Record {
   int id;
-  final int amount;
+  int amount;
   final int type;
-  final int classify;
-  final int time;
-  final int account;
-  final String remark;
+  int classify;
+  int time;
+  int account;
+  String remark;
 
 
   Record({
@@ -66,6 +66,11 @@ class Record {
       'account': account,
       'remark': remark,
     };
+  }
+
+  @override
+  String toString() {
+    return 'id: $id, amount: $amount, type: $type, classify: $classify, time: $time, account: $account, remark: $remark';
   }
 
 }

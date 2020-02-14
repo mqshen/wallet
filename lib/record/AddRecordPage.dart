@@ -1,11 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:wallet/database/classify.dart';
 
 
+import '../Constants.dart';
 import 'RecordEditor.dart';
 import 'Transfer.dart';
 
 class AddRecordPage extends StatefulWidget {
+  Record record;
+
+  AddRecordPage({Key key, this.record}): super(key: key);
 
   @override
   State<StatefulWidget> createState() => _AddRecordPageSate();
@@ -13,29 +18,30 @@ class AddRecordPage extends StatefulWidget {
 }
 
 class _AddRecordPageSate extends State<AddRecordPage> with SingleTickerProviderStateMixin {
-
 //  ButtonGroup _buttonGroup ;
 
   TabController _tabController;
 
   @override
   void initState() {
-//    _buttonGroup = ButtonGroup(
-//      titles: ["收入", "支出", "转账"],
-//      color: Colors.blue,
-//      secondaryColor: Colors.white,
-//      current: 1,
-//      onTab: (index) {
-//        if(_tabController != null) {
-//          _tabController.animateTo(index);
-//        }
-//      },
-//    );
-    _tabController = new TabController(initialIndex: 1, length: 3, vsync: this);
+    int index = 1;
+    if(widget.record != null) {
+      index = widget.record.type;
+    }
+    _tabController = new TabController(initialIndex: index, length: 3, vsync: this);
     super.initState();
   }
 
   Widget build(BuildContext context) {
+    Record incomeRecord;
+    Record spendRecord;
+    if(widget.record != null ) {
+      if(Constants.Income == widget.record.type ) {
+        incomeRecord = widget.record;
+      } else {
+        spendRecord = widget.record;
+      }
+    }
     return Scaffold(
         appBar: AppBar(
           backgroundColor: Colors.white,
@@ -60,8 +66,8 @@ class _AddRecordPageSate extends State<AddRecordPage> with SingleTickerProviderS
         ),
         body: TabBarView(
           children: [
-            RecordEditor(opType: 0),
-            RecordEditor(opType: 1),
+            RecordEditor(opType: 0, record: incomeRecord),
+            RecordEditor(opType: 1, record: spendRecord),
             TransferPage()
           ],
           controller: _tabController,
@@ -73,5 +79,4 @@ class _AddRecordPageSate extends State<AddRecordPage> with SingleTickerProviderS
 
 
 }
-
 

@@ -186,14 +186,15 @@ class _AssetDetailState extends State<AssetDetail> {
     isPageLoading = true;
     DBHelper.findRecordsByYearAndAccount(widget.year, widget.assetId).then((records) {
       List<Classify> classifies = DBManager().classifies;
-      BillItem monthItem = BillItem(
-        type: RecordType.month,
-      );
+      BillItem monthItem;
       int day = -1;
       records.forEach((record) {
         DateTime dateTime = record.getOpTime();
-        if(dateTime.month != monthItem.id) {
-          monthItem.id = dateTime.month;
+        if(monthItem == null || dateTime.month != monthItem.id) {
+          monthItem = BillItem(
+            id: dateTime.month,
+            type: RecordType.month,
+          );
           arrayOfProducts.add(monthItem);
         }
 

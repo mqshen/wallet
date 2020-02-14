@@ -16,6 +16,7 @@ class BillItem {
   int rightAmount;
   String classifyName;
   String classifyImage;
+  String remark;
 
   BillItem({
     this.id = 0,
@@ -24,6 +25,8 @@ class BillItem {
     this.leftAmount = 0,
     this.rightAmount = 0,
     this.classifyName = "",
-    this.classifyImage = ""});
+    this.classifyImage = "",
+    this.remark = ""
+  });
 
 }
