@@ -44,7 +44,7 @@ class _RecordEditorState extends State<RecordEditor> {
       account = widget.record.account;
     } else {
       time = DateTime.now();
-      amount = "0.00";
+      amount = "";
     }
     Classify temp = DBManager().classifies[classify];
     _addRecord = AddRecord(image: temp.image, name: temp.name, amount: amount);

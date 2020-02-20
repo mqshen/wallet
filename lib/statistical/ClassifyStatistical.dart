@@ -60,60 +60,33 @@ class ClassifyChart extends StatefulWidget {
 }
 
 class _ClassifyChart extends State<ClassifyChart> {
-  final List<charts.Series> seriesList = List();
-  charts.PieChart chart;
+  PieChartView pieChartView;
 
   List<StatisticalItem> data;
-  int totalAmount;
+  int totalAmount = 0;
   int type = 1;
+  String title  = "";
 
-  _ClassifyChart():super() {
+  @override
+  void initState() {
+    pieChartView = PieChartView(title: title, data: new List(), totalAmount: totalAmount, callback: (){
+      type ^= 1;
+      refreshData();
+    },);
     refreshData();
   }
+//  _ClassifyChart():super() {
+//  }
 
   @override
   Widget build(BuildContext context) {
-    String title;
-    if(type == 0) {
-      title = "总收入";
-    } else {
-      title = "总支出";
-    }
+
 
     return Column(
       children: [
         SizedBox(
           height: 250,
-          child: Stack(
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  border: Border( bottom: BorderSide(color: Colors.grey[300]))
-                ),
-                child: chart,
-              ),
-              Positioned(
-                child: Align(
-                  alignment: Alignment.center,
-                  child: GestureDetector(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        Text(title, style: TextStyle(fontSize: 12),),
-                        Text(Utils.toCurrency(totalAmount), style: TextStyle(fontSize: 18),),
-                        Icon(Icons.loop, color: Colors.grey[300], size: 16,)
-                      ],
-                    ),
-                    onTap: () {
-                      type ^= 1;
-                      refreshData();
-                    },
-                  )
-                )
-              ),
-            ]
-          )
+          child: pieChartView
         ),
         Expanded(child: buildListView(context))
       ],
@@ -125,45 +98,34 @@ class _ClassifyChart extends State<ClassifyChart> {
     return new ListView.builder(
       itemBuilder: (BuildContext context, int index) {
         StatisticalItem item = data[index];
-        Classify classify = DBManager().classifies[item.id];
-        double percent = 1;
-        if(totalAmount > 0)
-          percent = item.amount / totalAmount;
-        return new Container(
-            height: 40,
-            padding: EdgeInsets.only(left: 15.0, right: 15.0),
-            decoration: BoxDecoration(
-                border: Border( bottom: BorderSide(color: Colors.grey[300]))
-            ),
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  flex: 1,
-                  child: Image.asset(Utils.getClassifyImage(classify.image), width: 26, height: 26,),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Text(classify.name, style: TextStyle(fontSize: 16),),
-                ),
-                Expanded(
-                  flex: 3,
-                  child:  new Text(Utils.toPercent(percent), style: TextStyle(fontSize: 18), textAlign: TextAlign.right,)
-                ),
-                Expanded(
-                  flex: 4,
-                  child: new Text(Utils.toCurrency(item.amount), style: TextStyle(fontSize: 18), textAlign: TextAlign.right,)
-                )
-              ],
-            )
-        );
+        return StatisticalRow(item: item, totalAmount: totalAmount, callback: () {
+          updatePieChart();
+          setState((){});
+        });
       },
       itemCount: data == null ? 0 : data.length,
     );
   }
 
+  void updatePieChart() {
+    List<StatisticalItem> result = data.where((x) => x.show).toList();
+    totalAmount = 0;
+    result.forEach((record) {
+      totalAmount += record.amount;
+    });
+    pieChartView.data = result;
+    pieChartView.title = title;
+    pieChartView.totalAmount = totalAmount;
+    pieChartView.refresh();
+  }
+
 
   void refreshData() {
-    seriesList.clear();
+    if(type == 0) {
+      title = "总收入";
+    } else {
+      title = "总支出";
+    }
     totalAmount = 0;
     int year = 0;
     int month = 0;
@@ -184,21 +146,148 @@ class _ClassifyChart extends State<ClassifyChart> {
         }
         amount += record.amount;
         result[record.classify] = amount;
-        totalAmount += amount;
+        totalAmount += record.amount;
       });
-      final data = result.entries.map((e) => StatisticalItem(e.key, e.value)).toList();
+      final data = result.entries.map((e) => StatisticalItem(id: e.key, amount: e.value))
+          .toList();
+      data.sort((x, y) => y.amount - x.amount);
       this.data = data;
     }).whenComplete((){
-      List<charts.Series<StatisticalItem, int>> items = _createSampleData(data);
-      seriesList.addAll(items);
-      chart = new charts.PieChart(seriesList,
-          animate: true,
-          defaultRenderer: new charts.ArcRendererConfig(arcWidth: 50));
+//      List<charts.Series<StatisticalItem, int>> items = _createSampleData(data);
+//      seriesList.addAll(items);
+//      chart = new charts.PieChart(seriesList,
+//          animate: true,
+//          defaultRenderer: new charts.ArcRendererConfig(arcWidth: 50));
+      updatePieChart();
       setState(() {
       });
     });
   }
 
+
+
+
+}
+
+/// Sample linear data type.
+class StatisticalItem {
+  final int id;
+  final int amount;
+  bool show;
+
+  StatisticalItem({this.id, this.amount, this.show = true});
+}
+
+class StatisticalRow extends StatefulWidget {
+  StatisticalItem item;
+  int totalAmount;
+  VoidCallback callback;
+
+
+  StatisticalRow({Key key, this.item, this.totalAmount, this.callback}): super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => _StatisticalRowState();
+
+}
+
+class _StatisticalRowState extends State<StatisticalRow> {
+
+  @override
+  Widget build(BuildContext context) {
+    Classify classify = DBManager().classifies[widget.item.id];
+    String percent;
+
+    Color backgroundColor ;
+    Color textColor ;
+
+    if(widget.item.show) {
+      backgroundColor = Colors.white;
+      textColor = Colors.black;
+      percent = Utils.toPercent(widget.item.amount / widget.totalAmount);
+    } else {
+      backgroundColor = Colors.grey[300];
+      textColor = Colors.grey;
+      percent = '';
+    }
+
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          widget.item.show = !widget.item.show;
+          widget.callback();
+        });
+      },
+      child: Container(
+          height: 40,
+          padding: EdgeInsets.only(left: 15.0, right: 15.0),
+          decoration: BoxDecoration(
+              color: backgroundColor,
+              border: Border( bottom: BorderSide(color: Colors.grey[300]))
+          ),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                flex: 1,
+                child: Image.asset(Utils.getClassifyImage(classify.image), width: 26, height: 26,),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text(classify.name, style: TextStyle(fontSize: 16, color: textColor),),
+              ),
+              Expanded(
+                  flex: 3,
+                  child: Text(percent,
+                    style: TextStyle(fontSize: 18, color: textColor),
+                    textAlign: TextAlign.right,)
+              ),
+              Expanded(
+                  flex: 4,
+                  child: Text(Utils.toCurrency(widget.item.amount),
+                    style: TextStyle(fontSize: 18, color: textColor),
+                    textAlign: TextAlign.right,)
+              )
+            ],
+          )
+      )
+    );
+  }
+
+}
+
+class PieChartView extends StatefulWidget {
+  String title;
+  int totalAmount;
+  List<StatisticalItem> data;
+  VoidCallback callback;
+  _PieChartState state;
+
+  PieChartView({Key key, this.title, this.totalAmount, this.data, this.callback}): super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    state = _PieChartState();
+    return state;
+  }
+
+  void refresh() {
+    state.refresh();
+  }
+
+}
+
+class _PieChartState extends State<PieChartView> {
+  charts.PieChart chart;
+
+  final List<charts.Series> seriesList = List();
+
+  @override
+  void initState() {
+    if(widget.data != null && widget.data.length > 0) {
+      refresh();
+    }
+    super.initState();
+  }
 
   /// Create one series with sample hard coded data.
   static List<charts.Series<StatisticalItem, int>> _createSampleData(List<StatisticalItem> data) {
@@ -218,12 +307,50 @@ class _ClassifyChart extends State<ClassifyChart> {
     ];
   }
 
-}
+  void refresh() {
+    setState((){
+      seriesList.clear();
+      List<charts.Series<StatisticalItem, int>> items = _createSampleData(widget.data);
+      seriesList.addAll(items);
+      chart = new charts.PieChart(seriesList,
+        animate: true,
+        defaultRenderer: new charts.ArcRendererConfig(arcWidth: 50));
 
-/// Sample linear data type.
-class StatisticalItem {
-  final int id;
-  final int amount;
+    });
+  }
 
-  StatisticalItem(this.id, this.amount);
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+                border: Border( bottom: BorderSide(color: Colors.grey[300]))
+            ),
+            child: chart,
+          ),
+          Positioned(
+              child: Align(
+                  alignment: Alignment.center,
+                  child: GestureDetector(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Text(widget.title, style: TextStyle(fontSize: 12),),
+                        Text(Utils.toCurrency(widget.totalAmount), style: TextStyle(fontSize: 18),),
+                        Icon(Icons.loop, color: Colors.grey[300], size: 16,)
+                      ],
+                    ),
+                    onTap: () {
+                      widget.callback();
+                    },
+                  )
+              )
+          ),
+        ]
+    );
+  }
+
 }

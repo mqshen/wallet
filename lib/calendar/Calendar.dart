@@ -153,8 +153,8 @@ class _DayRecordsState extends State<DayRecords> {
         arrayOfProducts.add(billItem);
       });
     }).whenComplete((){
-      isPageLoading = false;
       setState(() {
+        isPageLoading = false;
       });
     });
   }

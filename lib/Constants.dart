@@ -37,6 +37,8 @@ class Utils {
   static final percentFormat = new NumberFormat("0.00", "en_US");
 
   static String toCurrency(int amount) {
+    if(amount == null)
+      return '';
     return '${currencyFormat.format((amount / 100).floor())}.${placeholderFormat.format(amount % 100)}';
   }
 
@@ -58,7 +60,7 @@ class Utils {
         }
       }
     }
-    String currency = temp.replaceAll("\.", "");
+    String currency = temp.replaceAll("\.", "").replaceAll(",", "");
     return int.parse(currency);
   }
 

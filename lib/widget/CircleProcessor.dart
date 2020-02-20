@@ -12,13 +12,20 @@ class CircleProcessor extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double radius = this.size / 2;
+    double percent = value;
+    Color color = Colors.blue;
+    if(value > 1) {
+      percent = 0.9;
+      color = Colors.red;
+    }
+
     return Container(
       decoration: new BoxDecoration(
       gradient: new LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          stops: [value, value],
-          colors: [Colors.grey, Colors.blue]
+          stops: [percent, percent],
+          colors: [Colors.grey, color]
           ),
           borderRadius: new BorderRadius.all(Radius.circular(radius))
       ),

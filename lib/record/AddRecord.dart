@@ -30,6 +30,10 @@ class _AddRecord extends State<AddRecord> {
 
   @override
   Widget build(BuildContext context) {
+    String amount = widget.amount;
+    if(amount.length == 0) {
+      amount = "0.00";
+    }
     return new Container(
         height: 60,
         padding: EdgeInsets.only(left: 5.0, right: 10.0),
@@ -53,7 +57,7 @@ class _AddRecord extends State<AddRecord> {
               child: Container (
                   padding: const EdgeInsets.only(right: 10.0),
                   alignment: Alignment.centerRight,
-                  child: new Text(widget.amount, style: TextStyle(fontSize: 30), textAlign: TextAlign.right,)
+                  child: new Text(amount, style: TextStyle(fontSize: 30), textAlign: TextAlign.right,)
               ),
             )
           ],
